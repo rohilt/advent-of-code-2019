@@ -1,5 +1,8 @@
 import Data.List
+import qualified Data.Map as Map
 import qualified Data.Set as Set
+
+type Path = (Set.Set (Int, Int), Map.Map (Int, Int) Int, (Int, Int))
 
 main = do
    input <- readFile "day3.in"
@@ -10,21 +13,22 @@ formList str = case break (==',') str of
                    (a, ',':b) -> a : formList b
                    (a, "")    -> [a]
 
-getPaths :: [String] -> [(Int, Int)]
-getPaths strs = foldl getPath [] strs
+getPath :: [String] -> Path
+getPath strs = foldl appendToPath (Set.empty, Map.empty, (0, 0)) strs
 
-getPath :: [(Int, Int)] -> String -> [(Int, Int)]
-getPath list str =
-   let (x, y) = endOfPath list in
+appendToPath :: Path -> String -> Path
+appendToPath (set, map, (x, y)) str =
    case (str) of
-      ('R':tl) -> list ++ [(i, y) | i <- [x+1..(x+(read tl :: Int))]]
-      ('L':tl) -> list ++ [(i, y) | i <- reverse [(x-(read tl :: Int))..x-1]]
-      ('U':tl) -> list ++ [(x, j) | j <- [y+1..(y+(read tl :: Int))]]
-      ('D':tl) -> list ++ [(x, j) | j <- reverse [(y-(read tl :: Int))..y-1]]
+      ('R':tl) -> (foldr Set.insert rightArr set)
+      ('L':tl) -> 
+      ('U':tl) ->
+      ('D':tl) ->
+   where rightArr = [(i, y) | i <- [x+1..(x+(read tl :: Int))]]
+         leftArr = [(i, y) | i <- reverse [(x-(read tl :: Int))..x-1]]
+         upArr = [(x, j) | j <- [y+1..(y+(read tl :: Int))]]
+         downArr = [(x, j) | j <- reverse [(y-(read tl :: Int))..y-1]]
 
-endOfPath :: [(Int, Int)] -> (Int, Int)
-endOfPath [] = (0, 0)
-endOfPath list = last list
+insertToPathMap :: Map.Map (Int, Int) Int -> ((Int, Int), Int) -> Map.Map (Int, Int) Int
 
 getMinimumIntersection :: [[(Int, Int)]] -> (Int, Int)
 getMinimumIntersection (fst:snd:tl) = head $ sortBy manhattanOrdering $ Set.toList $ Set.intersection (Set.fromList fst) (Set.fromList snd)
